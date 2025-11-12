@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+
+{% block title %}Hash Analyzer & Verifier - AI Keamanan Informasi{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold text-gradient">
+                    <i class="bi bi-fingerprint"></i> Hash Analyzer & Verifier
+                </h1>
+                <p class="lead text-muted">
+                    Analisis jenis hash dan verify password bcrypt
+                </p>
+            </div>
+
+            <!-- Analyzer Card -->
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-search me-2"></i>Analyze Hash</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="hashInput" class="form-label fw-bold">
+                            Masukkan Hash atau Encoded String:
+                        </label>
+                        <textarea 
+                            class="form-control font-monospace" 
+                            id="hashInput" 
+                            rows="4" 
+                            placeholder="Contoh:&#10;$2b$10$9KYUxT7D.lj/w5UQeZfyF.1kxzLkvvnn6wWFWbxgYJB6/YQj552wm&#10;atau&#10;SGVsbG8gV29ybGQ="
+                        ></textarea>
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Supports: Bcrypt, MD5, SHA-1, SHA-256, Base64
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary btn-lg w-100" id="analyzeBtn">
+                        <i class="bi bi-fingerprint me-2"></i>Analyze Hash
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Card -->
+            <div class="card shadow-lg border-0 mb-4" id="resultsCard" style="display: none;">
+                <div class="card-header bg-gradient-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-check-circle me-2"></i>Hasil Analisis
+                    </h5>
+                </div>
+                <div class="card-body" id="resultsContent">
+                    <!-- Results will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Bcrypt Verifier Card -->
+            <div class="card shadow-lg border-0 mb-4" id="verifierCard" style="display: none;">
+                <div class="card-header bg-gradient-warning text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-shield-check me-2"></i>Bcrypt Password Verifier
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <strong>Bcrypt detected!</strong> Anda bisa verify apakah password tertentu cocok dengan hash ini.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="passwordInput" class="form-label fw-bold">
+                            Masukkan Password untuk Verify:
+                        </label>
+                        <div class="input-group">
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="passwordInput" 
+                                placeholder="Enter password to verify..."
+                            >
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-warning btn-lg w-100" id="verifyBtn">
+                        <i class="bi bi-key me-2"></i>Verify Password
+                    </button>
+                    
+                    <div id="verificationResult" class="mt-3" style="display: none;">
+                        <!-- Verification result will be shown here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card shadow-lg border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-lightbulb text-warning me-2"></i>Tentang Hash Types
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">🔐 One-Way Hashes (Tidak Bisa Decrypt):</h6>
+                            <ul class="small">
+                                <li><strong>Bcrypt:</strong> Very strong, untuk password</li>
+                                <li><strong>SHA-256:</strong> Strong, cryptographic hash</li>
+                                <li><strong>SHA-1:</strong> Deprecated, tidak aman</li>
+                                <li><strong>MD5:</strong> Weak, mudah di-crack</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">🔓 Encoding (Bisa Decode):</h6>
+                            <ul class="small">
+                                <li><strong>Base64:</strong> Bukan enkripsi, mudah decode</li>
+                                <li><strong>Hex:</strong> Binary to text encoding</li>
+                            </ul>
+                            <div class="alert alert-warning small mb-0 mt-2">
+                                <strong>⚠️ Penting:</strong> Hash ≠ Enkripsi!<br>
+                                Hash adalah one-way function yang tidak bisa di-reverse.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Examples -->
+            <div class="card shadow-lg border-0 mt-4">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="bi bi-code-square me-2"></i>Contoh Hash</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-secondary btn-sm w-100 hash-example" 
+                                    data-hash="$2b$10$9KYUxT7D.lj/w5UQeZfyF.1kxzLkvvnn6wWFWbxgYJB6/YQj552wm">
+                                Bcrypt Example
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-secondary btn-sm w-100 hash-example" 
+                                    data-hash="5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8">
+                                SHA-256 Example
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-secondary btn-sm w-100 hash-example" 
+                                    data-hash="5d41402abc4b2a76b9719d911017c592">
+                                MD5 Example
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-secondary btn-sm w-100 hash-example" 
+                                    data-hash="SGVsbG8gV29ybGQh">
+                                Base64 Example
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hash-info-item {
+    padding: 10px;
+    margin: 5px 0;
+    border-left: 4px solid #667eea;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.badge-security {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+}
+</style>
+
+<script>
+let currentHashType = '';
+
+// Example buttons
+document.querySelectorAll('.hash-example').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.getElementById('hashInput').value = this.dataset.hash;
+    });
+});
+
+// Toggle password visibility
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const input = document.getElementById('passwordInput');
+    const icon = this.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
+});
+
+// Analyze hash
+document.getElementById('analyzeBtn').addEventListener('click', async function() {
+    const hashValue = document.getElementById('hashInput').value.trim();
+    
+    if (!hashValue) {
+        alert('⚠️ Mohon masukkan hash atau encoded string!');
+        return;
+    }
+    
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyzing...';
+    
+    try {
+        const response = await fetch('/hash-analyzer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'analyze',
+                hash: hashValue
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            displayResults(result.hash_info);
+        } else {
+            alert('❌ Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('❌ Error: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-fingerprint me-2"></i>Analyze Hash';
+    }
+});
+
+function displayResults(info) {
+    currentHashType = info.type;
+    
+    // Security level badge color
+    const levelColors = {
+        'Very Strong (One-way)': 'success',
+        'Strong (One-way)': 'info',
+        'Weak (Deprecated)': 'danger',
+        'None (Not Encryption)': 'warning',
+        'Unknown': 'secondary'
+    };
+    
+    const badgeColor = levelColors[info.security_level] || 'secondary';
+    
+    let html = `
+        <div class="hash-info-item">
+            <strong>Hash Type:</strong> 
+            <span class="badge bg-primary ms-2">${info.type}</span>
+        </div>
+        
+        <div class="hash-info-item">
+            <strong>Algorithm:</strong> ${info.algorithm}
+        </div>
+        
+        <div class="hash-info-item">
+            <strong>Security Level:</strong> 
+            <span class="badge bg-${badgeColor} ms-2">${info.security_level}</span>
+        </div>
+        
+        <div class="hash-info-item">
+            <strong>Length:</strong> ${info.length} characters
+        </div>
+        
+        <div class="hash-info-item">
+            <strong>Can Decrypt:</strong> 
+            ${info.can_decrypt ? 
+                '<span class="badge bg-success ms-2">Yes (Encoding)</span>' : 
+                '<span class="badge bg-danger ms-2">No (One-way Hash)</span>'}
+        </div>
+    `;
+    
+    if (info.cost_factor) {
+        html += `
+            <div class="hash-info-item">
+                <strong>Bcrypt Cost Factor:</strong> ${info.cost_factor}
+            </div>
+        `;
+    }
+    
+    if (info.description) {
+        html += `
+            <div class="alert alert-info mt-3 mb-0">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                ${info.description}
+            </div>
+        `;
+    }
+    
+    if (info.decoded_value) {
+        html += `
+            <div class="alert alert-success mt-3 mb-0">
+                <strong>✅ Decoded Value:</strong><br>
+                <code class="text-dark">${info.decoded_value}</code>
+            </div>
+        `;
+    }
+    
+    document.getElementById('resultsContent').innerHTML = html;
+    document.getElementById('resultsCard').style.display = 'block';
+    document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth' });
+    
+    // Show verifier if bcrypt
+    if (info.type === 'Bcrypt') {
+        document.getElementById('verifierCard').style.display = 'block';
+        document.getElementById('verificationResult').style.display = 'none';
+    } else {
+        document.getElementById('verifierCard').style.display = 'none';
+    }
+}
+
+// Verify password
+document.getElementById('verifyBtn').addEventListener('click', async function() {
+    const hashValue = document.getElementById('hashInput').value.trim();
+    const password = document.getElementById('passwordInput').value;
+    
+    if (!password) {
+        alert('⚠️ Mohon masukkan password untuk verify!');
+        return;
+    }
+    
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying...';
+    
+    try {
+        const response = await fetch('/hash-analyzer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'verify',
+                hash: hashValue,
+                password: password
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success && result.hash_info.verification) {
+            const verify = result.hash_info.verification;
+            const resultDiv = document.getElementById('verificationResult');
+            
+            if (verify.match) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success mb-0">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <strong>${verify.message}</strong><br>
+                        Password yang Anda masukkan cocok dengan hash ini.
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger mb-0">
+                        <i class="bi bi-x-circle-fill me-2"></i>
+                        <strong>${verify.message}</strong><br>
+                        Password yang Anda masukkan tidak cocok dengan hash ini.
+                    </div>
+                `;
+            }
+            
+            resultDiv.style.display = 'block';
+        } else {
+            alert('❌ Error: ' + (result.error || 'Verification failed'));
+        }
+    } catch (error) {
+        alert('❌ Error: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-key me-2"></i>Verify Password';
+    }
+});
+</script>
+{% endblock %}

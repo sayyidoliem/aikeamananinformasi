@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+
+{% block title %}Advanced AI Security Scanner - AI Keamanan Informasi{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold text-gradient">
+                    <i class="bi bi-shield-check"></i> Advanced AI Security Scanner
+                </h1>
+                <p class="lead text-muted">
+                    Comprehensive security analysis dengan AI-powered detection
+                </p>
+            </div>
+
+            <!-- Scan Type Selection -->
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-gear-fill me-2"></i>Pilih Jenis Scan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="scan-type-card" data-scan="phishing">
+                                <div class="scan-icon text-primary">
+                                    <i class="bi bi-envelope-exclamation fs-1"></i>
+                                </div>
+                                <h6 class="mt-3">Phishing Detection</h6>
+                                <p class="small text-muted">Deteksi email & URL phishing</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="scan-type-card" data-scan="malware">
+                                <div class="scan-icon text-danger">
+                                    <i class="bi bi-bug fs-1"></i>
+                                </div>
+                                <h6 class="mt-3">Malware Analysis</h6>
+                                <p class="small text-muted">Analisis signature malware</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="scan-type-card" data-scan="network">
+                                <div class="scan-icon text-info">
+                                    <i class="bi bi-diagram-3 fs-1"></i>
+                                </div>
+                                <h6 class="mt-3">Network Security</h6>
+                                <p class="small text-muted">Audit konfigurasi network</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="scan-type-card" data-scan="social_engineering">
+                                <div class="scan-icon text-warning">
+                                    <i class="bi bi-people fs-1"></i>
+                                </div>
+                                <h6 class="mt-3">Social Engineering</h6>
+                                <p class="small text-muted">Deteksi manipulasi psikologis</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="scan-type-card" data-scan="data_leak">
+                                <div class="scan-icon text-success">
+                                    <i class="bi bi-shield-lock fs-1"></i>
+                                </div>
+                                <h6 class="mt-3">Data Leak Check</h6>
+                                <p class="small text-muted">Cek kebocoran data sensitif</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="scan-type-card disabled">
+                                <div class="scan-icon text-secondary">
+                                    <i class="bi bi-plus-circle fs-1"></i>
+                                </div>
+                                <h6 class="mt-3">More Coming</h6>
+                                <p class="small text-muted">Fitur baru segera hadir</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scan Input -->
+            <div class="card shadow-lg border-0 mb-4" id="scanInputCard" style="display: none;">
+                <div class="card-header bg-gradient-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        <span id="scanTypeTitle">Input Target</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="scanTarget" class="form-label fw-bold">
+                            <span id="scanInputLabel">Masukkan target untuk di-scan:</span>
+                        </label>
+                        <textarea 
+                            class="form-control" 
+                            id="scanTarget" 
+                            rows="5" 
+                            placeholder="Contoh: URL, email content, code snippet, atau konfigurasi..."
+                        ></textarea>
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <span id="scanHelpText">Paste URL, email, atau text yang ingin dianalisis</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-primary btn-lg flex-grow-1" id="startScanBtn">
+                            <i class="bi bi-search me-2"></i>Start Advanced Scan
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-lg" id="clearScanBtn">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div class="card shadow-lg border-0 mb-4" id="loadingCard" style="display: none;">
+                <div class="card-body text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h5 class="text-primary">
+                        <i class="bi bi-hourglass-split me-2"></i>AI sedang menganalisis...
+                    </h5>
+                    <p class="text-muted">Mohon tunggu, proses analisis memerlukan beberapa detik</p>
+                    <div class="progress mt-3" style="height: 25px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" 
+                             style="width: 100%">
+                             Analyzing with AI...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="card shadow-lg border-0" id="resultsCard" style="display: none;">
+                <div class="card-header bg-gradient-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-check-circle me-2"></i>Hasil Analisis
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="scanResults" class="analysis-result">
+                        <!-- Results will be displayed here -->
+                    </div>
+                    
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="button" class="btn btn-primary" id="newScanBtn">
+                            <i class="bi bi-arrow-repeat me-2"></i>Scan Baru
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="copyResultsBtn">
+                            <i class="bi bi-clipboard me-2"></i>Copy Results
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scanner Info -->
+            <div class="card shadow-lg border-0 mt-4 bg-light">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-lightbulb text-warning me-2"></i>Tentang Advanced Scanner
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">✨ Features:</h6>
+                            <ul class="small">
+                                <li>AI-powered threat detection</li>
+                                <li>Multi-layer security analysis</li>
+                                <li>Real-time vulnerability assessment</li>
+                                <li>Comprehensive reporting</li>
+                                <li>Best practice recommendations</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">🛡️ Scan Types:</h6>
+                            <ul class="small">
+                                <li><strong>Phishing:</strong> Email & URL verification</li>
+                                <li><strong>Malware:</strong> Code behavior analysis</li>
+                                <li><strong>Network:</strong> Config audit & hardening</li>
+                                <li><strong>Social Eng:</strong> Manipulation detection</li>
+                                <li><strong>Data Leak:</strong> Sensitive info exposure</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.scan-type-card {
+    padding: 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.scan-type-card:hover:not(.disabled) {
+    border-color: #667eea;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.scan-type-card.active {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.scan-type-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.scan-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.analysis-result {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.8;
+    max-height: 600px;
+    overflow-y: auto;
+}
+</style>
+
+<script>
+let selectedScanType = '';
+
+// Scan type selection
+document.querySelectorAll('.scan-type-card:not(.disabled)').forEach(card => {
+    card.addEventListener('click', function() {
+        // Remove active class from all cards
+        document.querySelectorAll('.scan-type-card').forEach(c => c.classList.remove('active'));
+        
+        // Add active class to clicked card
+        this.classList.add('active');
+        
+        // Get scan type
+        selectedScanType = this.dataset.scan;
+        
+        // Update UI based on scan type
+        const titles = {
+            'phishing': 'Phishing Detection Scan',
+            'malware': 'Malware Analysis Scan',
+            'network': 'Network Security Audit',
+            'social_engineering': 'Social Engineering Detection',
+            'data_leak': 'Data Leak Assessment'
+        };
+        
+        const labels = {
+            'phishing': 'Masukkan URL atau isi email yang mencurigakan:',
+            'malware': 'Masukkan code snippet atau file signature:',
+            'network': 'Masukkan konfigurasi network/firewall:',
+            'social_engineering': 'Masukkan pesan atau komunikasi yang diterima:',
+            'data_leak': 'Masukkan data atau credential untuk di-check:'
+        };
+        
+        const helpTexts = {
+            'phishing': 'Contoh: http://example-phish.com atau copy-paste email content',
+            'malware': 'Contoh: suspicious code, file hash, atau behavior pattern',
+            'network': 'Contoh: firewall rules, port configuration, atau network diagram',
+            'social_engineering': 'Contoh: email, SMS, atau pesan media sosial yang mencurigakan',
+            'data_leak': 'Contoh: API keys, passwords, atau PII (Personal Identifiable Information)'
+        };
+        
+        document.getElementById('scanTypeTitle').textContent = titles[selectedScanType];
+        document.getElementById('scanInputLabel').textContent = labels[selectedScanType];
+        document.getElementById('scanHelpText').textContent = helpTexts[selectedScanType];
+        document.getElementById('scanTarget').placeholder = helpTexts[selectedScanType];
+        
+        // Show input card
+        document.getElementById('scanInputCard').style.display = 'block';
+        document.getElementById('scanInputCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+});
+
+// Start scan
+document.getElementById('startScanBtn').addEventListener('click', async function() {
+    const target = document.getElementById('scanTarget').value.trim();
+    
+    if (!target) {
+        alert('⚠️ Mohon masukkan target untuk di-scan!');
+        return;
+    }
+    
+    if (!selectedScanType) {
+        alert('⚠️ Mohon pilih jenis scan terlebih dahulu!');
+        return;
+    }
+    
+    // Show loading
+    document.getElementById('scanInputCard').style.display = 'none';
+    document.getElementById('resultsCard').style.display = 'none';
+    document.getElementById('loadingCard').style.display = 'block';
+    
+    try {
+        const response = await fetch('/advanced-scanner', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                scan_type: selectedScanType,
+                target: target
+            })
+        });
+        
+        const result = await response.json();
+        
+        // Hide loading
+        document.getElementById('loadingCard').style.display = 'none';
+        
+        if (result.success) {
+            // Show results
+            document.getElementById('scanResults').textContent = result.analysis;
+            document.getElementById('resultsCard').style.display = 'block';
+            document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth' });
+        } else {
+            alert('❌ Error: ' + result.error);
+            document.getElementById('scanInputCard').style.display = 'block';
+        }
+    } catch (error) {
+        document.getElementById('loadingCard').style.display = 'none';
+        alert('❌ Terjadi kesalahan: ' + error.message);
+        document.getElementById('scanInputCard').style.display = 'block';
+    }
+});
+
+// Clear scan
+document.getElementById('clearScanBtn').addEventListener('click', function() {
+    document.getElementById('scanTarget').value = '';
+});
+
+// New scan
+document.getElementById('newScanBtn').addEventListener('click', function() {
+    document.getElementById('scanTarget').value = '';
+    document.getElementById('resultsCard').style.display = 'none';
+    document.getElementById('scanInputCard').style.display = 'block';
+    document.getElementById('scanInputCard').scrollIntoView({ behavior: 'smooth' });
+});
+
+// Copy results
+document.getElementById('copyResultsBtn').addEventListener('click', function() {
+    const results = document.getElementById('scanResults').textContent;
+    navigator.clipboard.writeText(results).then(() => {
+        const btn = this;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check2 me-2"></i>Copied!';
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-success');
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-secondary');
+        }, 2000);
+    });
+});
+</script>
+{% endblock %}

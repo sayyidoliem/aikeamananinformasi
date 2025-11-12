@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AI Keamanan Informasi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .btn-outline-purple {
+        color: #764ba2;
+        border-color: #764ba2;
+        position: relative;
+    }
+    .btn-outline-purple:hover {
+        background-color: #764ba2;
+        border-color: #764ba2;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h1 class="display-4 fw-bold text-white">
+                <i class="bi bi-speedometer2"></i> Security Dashboard
+            </h1>
+            <p class="lead text-white">Monitor dan kelola keamanan informasi Anda</p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Security Score</h6>
+                            <h2 class="fw-bold mb-0">85/100</h2>
+                        </div>
+                        <div class="feature-icon icon-success">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Threats Detected</h6>
+                            <h2 class="fw-bold mb-0">0</h2>
+                        </div>
+                        <div class="feature-icon icon-danger">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Scans Performed</h6>
+                            <h2 class="fw-bold mb-0">0</h2>
+                        </div>
+                        <div class="feature-icon icon-primary">
+                            <i class="bi bi-search"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12 mb-3">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-lightning-charge-fill text-warning"></i> Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <a href="/analyze" class="btn btn-outline-primary w-100 py-3">
+                                <i class="bi bi-search d-block mb-2 fs-3"></i>
+                                Analisis Ancaman
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <a href="/advanced-scanner" class="btn btn-outline-purple w-100 py-3">
+                                <i class="bi bi-shield-check d-block mb-2 fs-3"></i>
+                                <span class="badge bg-danger position-absolute top-0 end-0 m-2">NEW</span>
+                                Advanced Scanner
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <a href="/encrypt" class="btn btn-outline-success w-100 py-3">
+                                <i class="bi bi-lock-fill d-block mb-2 fs-3"></i>
+                                Enkripsi Data
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <a href="/vulnerability-scan" class="btn btn-outline-danger w-100 py-3">
+                                <i class="bi bi-bug-fill d-block mb-2 fs-3"></i>
+                                Scan Vulnerability
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <a href="/ai-consultation" class="btn btn-outline-info w-100 py-3">
+                                <i class="bi bi-chat-dots-fill d-block mb-2 fs-3"></i>
+                                Konsultasi AI
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Tips -->
+    <div class="row">
+        <div class="col-12 mb-3">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-lightbulb-fill text-warning"></i> Tips Keamanan
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <i class="bi bi-lock fs-3 text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Gunakan Password yang Kuat</h6>
+                                    <p class="text-muted mb-0">Kombinasikan huruf besar, kecil, angka, dan simbol</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <i class="bi bi-shield-check fs-3 text-success"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Aktifkan Two-Factor Authentication</h6>
+                                    <p class="text-muted mb-0">Tambahkan lapisan keamanan ekstra pada akun Anda</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <i class="bi bi-arrow-repeat fs-3 text-info"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Update Software Secara Berkala</h6>
+                                    <p class="text-muted mb-0">Pastikan sistem dan aplikasi selalu ter-update</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <i class="bi bi-exclamation-triangle fs-3 text-danger"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Waspada Terhadap Phishing</h6>
+                                    <p class="text-muted mb-0">Jangan klik link mencurigakan atau berikan data pribadi</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

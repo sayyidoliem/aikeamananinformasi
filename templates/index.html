@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Home - AI Keamanan Informasi{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row align-items-center min-vh-100">
+        <div class="col-lg-6 mb-5 mb-lg-0">
+            <h1 class="display-3 fw-bold text-white mb-4">
+                Lindungi Informasi Anda dengan AI
+            </h1>
+            <p class="lead text-white mb-4">
+                Platform keamanan informasi berbasis AI untuk menganalisis ancaman, 
+                mengenkripsi data, dan memberikan konsultasi keamanan secara real-time.
+            </p>
+            <div class="d-flex gap-3">
+                <a href="/dashboard" class="btn btn-primary btn-lg">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="/ai-consultation" class="btn btn-light btn-lg">
+                    <i class="bi bi-chat-dots"></i> Konsultasi AI
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-shield-check display-1 text-primary"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Fitur Keamanan Lengkap</h3>
+                    <ul class="list-unstyled text-start">
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Analisis Ancaman dengan AI
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Enkripsi & Dekripsi Data
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Cek Kekuatan Password
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Scan Vulnerability
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Konsultasi AI 24/7
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row mt-5 mb-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="display-5 fw-bold text-white">Fitur Unggulan</h2>
+            <p class="lead text-white">Solusi keamanan informasi yang komprehensif</p>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon icon-primary mx-auto">
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Analisis Ancaman</h4>
+                    <p class="text-muted">
+                        Deteksi dan analisis ancaman keamanan menggunakan AI Gemini
+                    </p>
+                    <a href="/analyze" class="btn btn-outline-primary">Coba Sekarang</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon icon-success mx-auto">
+                        <i class="bi bi-lock-fill"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Enkripsi Data</h4>
+                    <p class="text-muted">
+                        Enkripsi dan dekripsi data dengan algoritma modern
+                    </p>
+                    <a href="/encrypt" class="btn btn-outline-success">Coba Sekarang</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon icon-danger mx-auto">
+                        <i class="bi bi-bug-fill"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Scan Vulnerability</h4>
+                    <p class="text-muted">
+                        Identifikasi kerentanan keamanan pada sistem Anda
+                    </p>
+                    <a href="/vulnerability-scan" class="btn btn-outline-danger">Coba Sekarang</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

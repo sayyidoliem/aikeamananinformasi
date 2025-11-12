@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Konsultasi AI - AI Keamanan Informasi{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-chat-dots-fill"></i> Konsultasi AI Keamanan Informasi
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted mb-4">
+                        Tanyakan apapun tentang keamanan informasi kepada AI Gemini. 
+                        Dapatkan jawaban yang praktis dan mudah dipahami.
+                    </p>
+
+                    <!-- Chat Container -->
+                    <div id="chatContainer" class="mb-4" style="max-height: 400px; overflow-y: auto;">
+                        <!-- Initial message -->
+                        <div class="alert alert-light border">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <i class="bi bi-robot fs-3 text-info"></i>
+                                </div>
+                                <div>
+                                    <strong>AI Assistant:</strong>
+                                    <p class="mb-0 mt-2">
+                                        Halo! Saya adalah asisten AI keamanan informasi. 
+                                        Saya siap membantu Anda dengan pertanyaan seputar:
+                                    </p>
+                                    <ul class="mb-0 mt-2">
+                                        <li>Enkripsi dan Kriptografi</li>
+                                        <li>Password Security</li>
+                                        <li>Malware dan Virus</li>
+                                        <li>Network Security</li>
+                                        <li>Social Engineering</li>
+                                        <li>Best Practices Keamanan</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question Form -->
+                    <form id="questionForm">
+                        <div class="mb-3">
+                            <label for="questionInput" class="form-label fw-bold">Pertanyaan Anda</label>
+                            <textarea 
+                                class="form-control" 
+                                id="questionInput" 
+                                rows="3" 
+                                placeholder="Contoh: Apa itu enkripsi end-to-end? Bagaimana cara membuat password yang kuat?"
+                                required
+                            ></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-info btn-lg w-100 text-white">
+                            <i class="bi bi-send-fill"></i> Kirim Pertanyaan
+                        </button>
+                    </form>
+
+                    <!-- Loading -->
+                    <div class="loading text-center my-4" id="loading">
+                        <div class="spinner-border text-info" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">AI sedang berpikir...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sample Questions -->
+            <div class="card mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-question-circle"></i> Pertanyaan Populer
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-outline-info sample-question" 
+                                data-question="Apa itu enkripsi end-to-end dan bagaimana cara kerjanya?">
+                            Enkripsi End-to-End
+                        </button>
+                        <button class="btn btn-outline-info sample-question" 
+                                data-question="Bagaimana cara membuat password yang kuat dan aman?">
+                            Password Kuat
+                        </button>
+                        <button class="btn btn-outline-info sample-question" 
+                                data-question="Apa perbedaan antara virus, malware, dan ransomware?">
+                            Virus vs Malware
+                        </button>
+                        <button class="btn btn-outline-info sample-question" 
+                                data-question="Bagaimana cara melindungi diri dari phishing?">
+                            Pencegahan Phishing
+                        </button>
+                        <button class="btn btn-outline-info sample-question" 
+                                data-question="Apa itu Two-Factor Authentication dan mengapa penting?">
+                            2FA Explained
+                        </button>
+                        <button class="btn btn-outline-info sample-question" 
+                                data-question="Bagaimana cara mengamankan jaringan WiFi rumah?">
+                            WiFi Security
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const chatContainer = document.getElementById('chatContainer');
+    const questionForm = document.getElementById('questionForm');
+    const questionInput = document.getElementById('questionInput');
+    const loading = document.getElementById('loading');
+
+    questionForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const question = questionInput.value;
+        
+        // Add user message to chat
+        addMessage('user', question);
+        
+        // Clear input
+        questionInput.value = '';
+        
+        // Show loading
+        loading.classList.add('show');
+        
+        try {
+            const response = await fetch('/ai-consultation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ question: question })
+            });
+            
+            const data = await response.json();
+            
+            // Hide loading
+            loading.classList.remove('show');
+            
+            if (data.success) {
+                // Add AI response to chat
+                addMessage('ai', data.answer);
+            } else {
+                addMessage('ai', 'Maaf, terjadi kesalahan: ' + data.error);
+            }
+        } catch (error) {
+            loading.classList.remove('show');
+            addMessage('ai', 'Maaf, terjadi kesalahan: ' + error.message);
+        }
+    });
+
+    function addMessage(type, message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'alert border mb-3';
+        
+        if (type === 'user') {
+            messageDiv.classList.add('alert-primary');
+            messageDiv.innerHTML = `
+                <div class="d-flex align-items-start">
+                    <div class="me-3">
+                        <i class="bi bi-person-circle fs-3"></i>
+                    </div>
+                    <div>
+                        <strong>Anda:</strong>
+                        <p class="mb-0 mt-2">${message}</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            messageDiv.classList.add('alert-light');
+            messageDiv.innerHTML = `
+                <div class="d-flex align-items-start">
+                    <div class="me-3">
+                        <i class="bi bi-robot fs-3 text-info"></i>
+                    </div>
+                    <div>
+                        <strong>AI Assistant:</strong>
+                        <p class="mb-0 mt-2">${message.replace(/\n/g, '<br>')}</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // Sample questions
+    document.querySelectorAll('.sample-question').forEach(button => {
+        button.addEventListener('click', () => {
+            questionInput.value = button.dataset.question;
+            questionInput.focus();
+        });
+    });
+</script>
+{% endblock %}

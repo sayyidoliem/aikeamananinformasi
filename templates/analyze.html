@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Analisis Ancaman - AI Keamanan Informasi{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-search"></i> Analisis Ancaman Keamanan
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted mb-4">
+                        Masukkan teks, URL, atau konten yang ingin Anda analisis untuk potensi ancaman keamanan.
+                    </p>
+
+                    <form id="analyzeForm">
+                        <div class="mb-4">
+                            <label for="textInput" class="form-label fw-bold">Teks untuk Dianalisis</label>
+                            <textarea 
+                                class="form-control" 
+                                id="textInput" 
+                                rows="6" 
+                                placeholder="Contoh: Email mencurigakan, URL, atau konten lain yang ingin dianalisis..."
+                                required
+                            ></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-cpu"></i> Analisis dengan AI
+                        </button>
+                    </form>
+
+                    <!-- Loading -->
+                    <div class="loading text-center my-4" id="loading">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Menganalisis dengan AI Gemini...</p>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="results" class="mt-4" style="display: none;">
+                        <hr>
+                        <h5 class="fw-bold mb-3">
+                            <i class="bi bi-clipboard-data"></i> Hasil Analisis
+                        </h5>
+                        <div class="alert alert-info">
+                            <div id="analysisResult" class="analysis-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Examples -->
+            <div class="card mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-lightbulb"></i> Contoh Analisis
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action example-item" 
+                           data-text="Anda memenangkan hadiah 1 miliar rupiah! Klik link ini untuk klaim: http://suspicious-link.com">
+                            <i class="bi bi-envelope-exclamation text-danger"></i> Email Phishing Mencurigakan
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action example-item"
+                           data-text="SELECT * FROM users WHERE username='admin' OR '1'='1'">
+                            <i class="bi bi-code-slash text-warning"></i> SQL Injection Attempt
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action example-item"
+                           data-text="<script>alert('XSS Attack')</script>">
+                            <i class="bi bi-bug text-danger"></i> Cross-Site Scripting (XSS)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('analyzeForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const text = document.getElementById('textInput').value;
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        
+        // Show loading
+        loading.classList.add('show');
+        results.style.display = 'none';
+        
+        try {
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: text })
+            });
+            
+            const data = await response.json();
+            
+            // Hide loading
+            loading.classList.remove('show');
+            
+            if (data.success) {
+                // Show results
+                results.style.display = 'block';
+                document.getElementById('analysisResult').innerHTML = 
+                    data.analysis.replace(/\n/g, '<br>');
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (error) {
+            loading.classList.remove('show');
+            alert('Terjadi kesalahan: ' + error.message);
+        }
+    });
+
+    // Example items
+    document.querySelectorAll('.example-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('textInput').value = item.dataset.text;
+        });
+    });
+</script>
+{% endblock %}

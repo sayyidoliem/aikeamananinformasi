@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}Enkripsi Data - AI Keamanan Informasi{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Encryption Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-lock-fill"></i> Enkripsi & Dekripsi Data
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Tabs -->
+                    <ul class="nav nav-pills mb-4" id="cryptoTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="encrypt-tab" data-bs-toggle="pill" 
+                                    data-bs-target="#encrypt" type="button" role="tab">
+                                <i class="bi bi-lock"></i> Enkripsi
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="decrypt-tab" data-bs-toggle="pill" 
+                                    data-bs-target="#decrypt" type="button" role="tab">
+                                <i class="bi bi-unlock"></i> Dekripsi
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="password-tab" data-bs-toggle="pill" 
+                                    data-bs-target="#password" type="button" role="tab">
+                                <i class="bi bi-key"></i> Cek Password
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="cryptoTabContent">
+                        <!-- Encrypt Tab -->
+                        <div class="tab-pane fade show active" id="encrypt" role="tabpanel">
+                            <form id="encryptForm">
+                                <div class="mb-3">
+                                    <label for="encryptInput" class="form-label fw-bold">Teks untuk Dienkripsi</label>
+                                    <textarea class="form-control" id="encryptInput" rows="4" 
+                                              placeholder="Masukkan teks yang ingin dienkripsi..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="bi bi-lock-fill"></i> Enkripsi
+                                </button>
+                            </form>
+                            <div id="encryptResult" class="mt-3" style="display: none;">
+                                <hr>
+                                <h6 class="fw-bold">Hasil Enkripsi (Base64):</h6>
+                                <div class="alert alert-success">
+                                    <code id="encryptedText" class="text-break"></code>
+                                </div>
+                                <button class="btn btn-sm btn-outline-success" onclick="copyToClipboard('encryptedText')">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Decrypt Tab -->
+                        <div class="tab-pane fade" id="decrypt" role="tabpanel">
+                            <form id="decryptForm">
+                                <div class="mb-3">
+                                    <label for="decryptInput" class="form-label fw-bold">Teks Terenkripsi (Base64)</label>
+                                    <textarea class="form-control" id="decryptInput" rows="4" 
+                                              placeholder="Masukkan teks terenkripsi untuk didekripsi..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-warning w-100">
+                                    <i class="bi bi-unlock-fill"></i> Dekripsi
+                                </button>
+                            </form>
+                            <div id="decryptResult" class="mt-3" style="display: none;">
+                                <hr>
+                                <h6 class="fw-bold">Hasil Dekripsi:</h6>
+                                <div class="alert alert-warning">
+                                    <code id="decryptedText" class="text-break"></code>
+                                </div>
+                                <button class="btn btn-sm btn-outline-warning" onclick="copyToClipboard('decryptedText')">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Password Strength Tab -->
+                        <div class="tab-pane fade" id="password" role="tabpanel">
+                            <form id="passwordForm">
+                                <div class="mb-3">
+                                    <label for="passwordInput" class="form-label fw-bold">Password</label>
+                                    <input type="text" class="form-control" id="passwordInput" 
+                                           placeholder="Masukkan password untuk dicek kekuatannya..." required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-shield-check"></i> Cek Kekuatan
+                                </button>
+                            </form>
+                            <div id="passwordResult" class="mt-3" style="display: none;">
+                                <hr>
+                                <h6 class="fw-bold">Hasil Analisis Password:</h6>
+                                <div class="alert" id="passwordAlert">
+                                    <h5 class="fw-bold mb-3">Kekuatan: <span id="strengthText"></span></h5>
+                                    <div class="progress mb-3" style="height: 25px;">
+                                        <div id="strengthBar" class="progress-bar" role="progressbar" 
+                                             style="width: 0%"></div>
+                                    </div>
+                                    <div id="feedbackList"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-info-circle"></i> Informasi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="fw-bold">Tentang Enkripsi:</h6>
+                    <p class="text-muted mb-3">
+                        Tool ini menggunakan Base64 encoding untuk enkripsi sederhana. 
+                        Untuk keamanan data sensitif, gunakan algoritma enkripsi yang lebih kuat seperti AES.
+                    </p>
+                    <h6 class="fw-bold">Tips Password Kuat:</h6>
+                    <ul class="text-muted">
+                        <li>Minimal 8-12 karakter</li>
+                        <li>Kombinasi huruf besar dan kecil</li>
+                        <li>Sertakan angka dan simbol</li>
+                        <li>Hindari informasi pribadi</li>
+                        <li>Gunakan password manager</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Encrypt Form
+    document.getElementById('encryptForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = document.getElementById('encryptInput').value;
+        
+        try {
+            const response = await fetch('/encrypt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'encrypt', text: text })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('encryptedText').textContent = data.result;
+                document.getElementById('encryptResult').style.display = 'block';
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (error) {
+            alert('Terjadi kesalahan: ' + error.message);
+        }
+    });
+
+    // Decrypt Form
+    document.getElementById('decryptForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = document.getElementById('decryptInput').value;
+        
+        try {
+            const response = await fetch('/encrypt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'decrypt', text: text })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('decryptedText').textContent = data.result;
+                document.getElementById('decryptResult').style.display = 'block';
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (error) {
+            alert('Terjadi kesalahan: ' + error.message);
+        }
+    });
+
+    // Password Strength Form
+    document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const password = document.getElementById('passwordInput').value;
+        
+        try {
+            const response = await fetch('/check-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: password })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const percentage = (data.score / data.max_score) * 100;
+                const strengthBar = document.getElementById('strengthBar');
+                const passwordAlert = document.getElementById('passwordAlert');
+                
+                // Set color based on strength
+                let color = 'danger';
+                if (data.level === 'high') color = 'success';
+                else if (data.level === 'medium') color = 'warning';
+                
+                strengthBar.className = `progress-bar bg-${color}`;
+                strengthBar.style.width = percentage + '%';
+                strengthBar.textContent = Math.round(percentage) + '%';
+                
+                passwordAlert.className = `alert alert-${color}`;
+                document.getElementById('strengthText').textContent = data.strength;
+                
+                // Show feedback
+                let feedbackHTML = '';
+                if (data.feedback.length > 0) {
+                    feedbackHTML = '<ul class="mb-0">';
+                    data.feedback.forEach(item => {
+                        feedbackHTML += `<li>${item}</li>`;
+                    });
+                    feedbackHTML += '</ul>';
+                } else {
+                    feedbackHTML = '<p class="mb-0"><i class="bi bi-check-circle"></i> Password Anda sudah cukup kuat!</p>';
+                }
+                document.getElementById('feedbackList').innerHTML = feedbackHTML;
+                
+                document.getElementById('passwordResult').style.display = 'block';
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (error) {
+            alert('Terjadi kesalahan: ' + error.message);
+        }
+    });
+
+    // Copy to clipboard function
+    function copyToClipboard(elementId) {
+        const text = document.getElementById(elementId).textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Teks berhasil disalin!');
+        });
+    }
+</script>
+{% endblock %}
