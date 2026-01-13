@@ -91,3 +91,13 @@ def hash_analyzer():
         result = security_controller.analyze_hash(action, hash_value, password)
         return jsonify(result)
     return render_template('hash_analyzer.html')
+
+@main_bp.route('/phone-check', methods=['GET', 'POST'])
+def phone_check():
+    """Check phone number and detect spam"""
+    if request.method == 'POST':
+        data = request.get_json()
+        phone_number = data.get('phone', '')
+        result = security_controller.check_phone_number(phone_number)
+        return jsonify(result)
+    return render_template('phone_check.html')

@@ -644,3 +644,96 @@ Solusi:
                 'security_score': 85
             }
         }
+
+    def check_phone_number(self, phone_number):
+        """Check phone number for spam and security threats"""
+        try:
+            # Validasi dan bersihkan nomor telepon
+            import re
+            
+            # Hapus spasi dan simbol
+            cleaned_phone = re.sub(r'[\s\-\(\)\.+]', '', phone_number)
+            
+            # Validasi format nomor telepon
+            if not re.match(r'^(\+62|62|0)?[0-9]{8,13}$', cleaned_phone):
+                return {
+                    'success': False,
+                    'error': 'Format nomor telepon tidak valid. Gunakan format: 0812xxxx, +6281xxxx, atau 62812xxxx'
+                }
+            
+            # Normalisasi format ke +62
+            if cleaned_phone.startswith('0'):
+                normalized = '+62' + cleaned_phone[1:]
+            elif cleaned_phone.startswith('62'):
+                normalized = '+' + cleaned_phone
+            elif cleaned_phone.startswith('+62'):
+                normalized = cleaned_phone
+            else:
+                normalized = '+62' + cleaned_phone
+            
+            # Analisis nomor telepon dengan AI
+            if not self.ai_available:
+                return {
+                    'success': True,
+                    'number': {
+                        'original': phone_number,
+                        'normalized': normalized,
+                        'cleaned': cleaned_phone,
+                        'analysis': 'AI tidak tersedia, tapi nomor telepon valid'
+                    },
+                    'warnings': []
+                }
+            
+            prompt = f"""
+            Sebagai Ahli Keamanan Telepon, analisis nomor telepon berikut untuk kemungkinan SPAM, PHISHING, FRAUD:
+            
+            Nomor Telepon: {normalized}
+            
+            PENTING: Jawab dalam format PLAIN TEXT, TANPA markdown formatting (*,**,#,|,```).
+            
+            Analisis:
+            1. Tipe Operator: [Perkirakan operator seluler Indonesia]
+            2. Status Risiko: [AMAN / MEDIUM / TINGGI]
+            3. Ciri-ciri Spam: [Apakah menunjukkan ciri-ciri telepon spam?]
+            4. Rekomendasi: [Apa yang harus dilakukan?]
+            5. Tips Keselamatan: [Saran keamanan untuk pengguna]
+            
+            Fokus pada keamanan informasi pribadi. Jawab dalam Bahasa Indonesia. Singkat dan jelas.
+            """
+            
+            analysis_text = self.call_gemini_api(prompt)
+            
+            # Tentukan tingkat risiko
+            risk_level = 'MEDIUM'
+            if 'AMAN' in analysis_text.upper() or 'AMAN' in analysis_text.upper():
+                risk_level = 'AMAN'
+            elif 'TINGGI' in analysis_text.upper():
+                risk_level = 'TINGGI'
+            
+            warnings = []
+            if 'spam' in analysis_text.lower():
+                warnings.append('⚠️ Indikasi potensi spam')
+            if 'phishing' in analysis_text.lower():
+                warnings.append('🚨 Indikasi potensi phishing')
+            if 'fraud' in analysis_text.lower():
+                warnings.append('🚨 Indikasi potensi fraud/penipuan')
+            
+            return {
+                'success': True,
+                'number': {
+                    'original': phone_number,
+                    'normalized': normalized,
+                    'cleaned': cleaned_phone,
+                    'country': 'Indonesia (+62)',
+                    'analysis': analysis_text,
+                    'risk_level': risk_level
+                },
+                'warnings': warnings,
+                'verified': True
+            }
+            
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e)
+            }

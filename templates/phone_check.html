@@ -1,0 +1,445 @@
+{% extends "base.html" %}
+
+{% block title %}Cek Nomor Telepon/Spam - AI Keamanan Informasi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .phone-input-wrapper {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .phone-input-wrapper input {
+        padding-left: 50px;
+        height: 50px;
+        border-radius: 10px;
+        border: 2px solid #e0e0e0;
+        font-size: 16px;
+    }
+
+    .phone-input-wrapper input:focus {
+        border-color: #764ba2;
+        box-shadow: 0 0 0 0.2rem rgba(118, 75, 162, 0.25);
+    }
+
+    .phone-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #764ba2;
+        font-size: 20px;
+    }
+
+    .result-card {
+        border-left: 5px solid #764ba2;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .risk-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    .risk-aman {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .risk-medium {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .risk-tinggi {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .analysis-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 10px;
+        line-height: 1.8;
+    }
+
+    .warning-box {
+        background-color: #f8d7da;
+        border-left: 4px solid #dc3545;
+        padding: 12px 15px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .warning-box i {
+        margin-right: 8px;
+    }
+
+    .phone-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin: 15px 0;
+    }
+
+    .info-item {
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 3px solid #764ba2;
+    }
+
+    .info-item-label {
+        font-size: 12px;
+        color: #6c757d;
+        text-transform: uppercase;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .info-item-value {
+        font-size: 16px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .verification-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        background: #d4edda;
+        color: #155724;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #764ba2;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .tips-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+
+    .tips-container h5 {
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .tip-item {
+        margin-bottom: 10px;
+        padding-left: 20px;
+        position: relative;
+    }
+
+    .tip-item:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #ffc107;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h1 class="display-4 fw-bold text-white">
+                <i class="bi bi-telephone-fill"></i> Cek Nomor Telepon & Deteksi Spam
+            </h1>
+            <p class="lead text-white">Verifikasi nomor telepon dan identifikasi potensi spam, phishing, atau fraud</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Input Form -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-search"></i> Masukkan Nomor Telepon
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="phone-input-wrapper">
+                        <i class="bi bi-telephone phone-icon"></i>
+                        <input 
+                            type="text" 
+                            id="phoneInput" 
+                            class="form-control" 
+                            placeholder="Contoh: 0812xxxx, +628xx, atau 628xx"
+                            autocomplete="off"
+                        >
+                    </div>
+                    <small class="text-muted d-block mb-3">
+                        Format: 0812xxxxxxx, +6281xxxxxxx, atau 6281xxxxxxx
+                    </small>
+                    <button id="checkBtn" class="btn btn-primary btn-lg w-100" onclick="checkPhone()">
+                        <i class="bi bi-search"></i> Cek Nomor Telepon
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loadingSpinner" class="card loading-spinner">
+                <div class="spinner"></div>
+                <p class="mt-3 text-muted">Sedang menganalisis nomor telepon...</p>
+            </div>
+
+            <!-- Result -->
+            <div id="resultCard" class="card result-card" style="display: none;">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-check-circle"></i> Hasil Analisis
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Risk Level Badge -->
+                    <div id="riskBadge" style="margin-bottom: 15px;"></div>
+
+                    <!-- Warnings -->
+                    <div id="warningsBox"></div>
+
+                    <!-- Phone Info Grid -->
+                    <div id="phoneInfoGrid" class="phone-info-grid"></div>
+
+                    <!-- Analysis Result -->
+                    <div>
+                        <h6 class="fw-bold mb-2">Analisis Detail:</h6>
+                        <div id="analysisResult" class="analysis-section"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Alert -->
+            <div id="errorAlert" class="alert alert-danger alert-dismissible fade" role="alert" style="display: none;">
+                <i class="bi bi-exclamation-circle"></i>
+                <span id="errorMessage"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+
+        <!-- Sidebar Tips -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-lightbulb-fill text-warning"></i> Cara Penggunaan
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        <li class="mb-2">Masukkan nomor telepon yang ingin dicek</li>
+                        <li class="mb-2">Klik tombol "Cek Nomor Telepon"</li>
+                        <li class="mb-2">Tunggu sistem menganalisis nomor</li>
+                        <li>Periksa hasil analisis dan rekomendasi keamanan</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="tips-container">
+                <h5><i class="bi bi-shield-check"></i> Tips Keamanan Telepon</h5>
+                <div class="tip-item">Jangan berikan data pribadi ke nomor tidak dikenal</div>
+                <div class="tip-item">Verifikasi identitas penelepon sebelum berbagi informasi</div>
+                <div class="tip-item">Waspada terhadap permintaan transfer uang mendesak</div>
+                <div class="tip-item">Gunakan fitur pemblokiran spam di ponsel Anda</div>
+                <div class="tip-item">Laporkan nomor mencurigakan ke operator telekomunikasi</div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="card mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-info-circle"></i> Informasi
+                    </h5>
+                </div>
+                <div class="card-body small">
+                    <p class="mb-2">Fitur ini menggunakan AI untuk menganalisis nomor telepon dan mendeteksi potensi:</p>
+                    <ul class="mb-0">
+                        <li>Spam Telepon</li>
+                        <li>Phishing</li>
+                        <li>Fraud/Penipuan</li>
+                        <li>Social Engineering</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function checkPhone() {
+    const phone = document.getElementById('phoneInput').value.trim();
+    
+    if (!phone) {
+        showError('Silakan masukkan nomor telepon terlebih dahulu');
+        return;
+    }
+    
+    showLoading(true);
+    hideError();
+    
+    fetch('/phone-check', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ phone: phone })
+    })
+    .then(response => response.json())
+    .then(data => {
+        showLoading(false);
+        
+        if (data.success) {
+            displayResult(data);
+        } else {
+            showError(data.error || 'Terjadi kesalahan dalam menganalisis nomor');
+        }
+    })
+    .catch(error => {
+        showLoading(false);
+        showError('Gagal terhubung ke server: ' + error.message);
+    });
+}
+
+function displayResult(data) {
+    const resultCard = document.getElementById('resultCard');
+    const number = data.number;
+    
+    // Risk Badge
+    let riskClass = 'risk-medium';
+    let riskIcon = '⚠️';
+    if (number.risk_level === 'AMAN') {
+        riskClass = 'risk-aman';
+        riskIcon = '✅';
+    } else if (number.risk_level === 'TINGGI') {
+        riskClass = 'risk-tinggi';
+        riskIcon = '🚨';
+    }
+    
+    document.getElementById('riskBadge').innerHTML = `
+        <span class="risk-badge ${riskClass}">
+            ${riskIcon} Status: ${number.risk_level}
+        </span>
+    `;
+    
+    // Warnings
+    let warningsHtml = '';
+    if (data.warnings && data.warnings.length > 0) {
+        warningsHtml = data.warnings.map(w => `
+            <div class="warning-box">
+                ${w}
+            </div>
+        `).join('');
+    }
+    document.getElementById('warningsBox').innerHTML = warningsHtml;
+    
+    // Phone Info Grid
+    let gridHtml = `
+        <div class="info-item">
+            <div class="info-item-label">Nomor Original</div>
+            <div class="info-item-value">${escapeHtml(number.original)}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-item-label">Nomor Ternormalisasi</div>
+            <div class="info-item-value">${escapeHtml(number.normalized)}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-item-label">Negara</div>
+            <div class="info-item-value">${escapeHtml(number.country)}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-item-label">Status Verifikasi</div>
+            <div class="info-item-value">
+                <span class="verification-badge">
+                    <i class="bi bi-check-circle"></i> Terverifikasi
+                </span>
+            </div>
+        </div>
+    `;
+    document.getElementById('phoneInfoGrid').innerHTML = gridHtml;
+    
+    // Analysis Result
+    document.getElementById('analysisResult').textContent = number.analysis || 'Data tidak tersedia';
+    
+    resultCard.style.display = 'block';
+    resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showLoading(show) {
+    document.getElementById('loadingSpinner').style.display = show ? 'block' : 'none';
+    document.getElementById('checkBtn').disabled = show;
+}
+
+function showError(message) {
+    const alert = document.getElementById('errorAlert');
+    document.getElementById('errorMessage').textContent = message;
+    alert.style.display = 'block';
+}
+
+function hideError() {
+    document.getElementById('errorAlert').style.display = 'none';
+}
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+// Enter key support
+document.getElementById('phoneInput').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        checkPhone();
+    }
+});
+</script>
+{% endblock %}

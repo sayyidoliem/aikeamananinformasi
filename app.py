@@ -45,6 +45,7 @@ if __name__ == '__main__':
        ✓ Cek Kekuatan Password
        ✓ Scan Vulnerability
        ✓ Konsultasi AI 24/7
+       ✓ Cek Nomor Telepon & Deteksi Spam (NEW!)
     
     💡 Tekan CTRL+C untuk menghentikan server
     """)
